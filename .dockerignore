@@ -1,0 +1,40 @@
+# Docker ignore for .NET
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# VS files
+.vs/
+*.user
+*.suo
+
+# Node.js
+node_modules/
+client/node_modules/
+
+# Test results
+TestResults/
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.override.yml
+
+# Documentation
+*.md
+README.md
+
+# Environment
+.env
+.env.*

@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: marketnest-postgres
+    environment:
+      POSTGRES_DB: marketnest
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-MarketNest@123}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: marketnest-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: src/MarketNest.API/Dockerfile
+    container_name: marketnest-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=marketnest;Username=postgres;Password=${POSTGRES_PASSWORD:-MarketNest@123}
+      - ConnectionStrings__Redis=redis:6379
+    ports:
+      - "5000:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./src/MarketNest.API/appsettings.json:/app/appsettings.json:ro
+      - ./src/MarketNest.API/appsettings.Development.json:/app/appsettings.Development.json:ro
+
+volumes:
+  pgdata:
+  redisdata:
